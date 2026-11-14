@@ -4,5 +4,8 @@ export interface IUser {
     email: string;
     password: string;
     provider: Provider;
-    gender: Gender
+    gender: Gender;
+    phoneNumber?: string;
+    isVerified?: boolean;
+    isDeleted?: boolean;
 }

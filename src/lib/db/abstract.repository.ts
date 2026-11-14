@@ -1,4 +1,4 @@
-import {Types, Model, QueryFilter, QueryOptions} from "mongoose";
+import {Types, Model, QueryFilter, QueryOptions, HydratedDocument, DeleteResult} from "mongoose";
 
 export abstract class AbstractRepository<T> {
 
@@ -6,18 +6,18 @@ export abstract class AbstractRepository<T> {
     }
 
 
-    async create(data: T) {
+    async create(data: Partial<T>): Promise<HydratedDocument<T>> {
             return this.model.create(data);
         }
     
-    async update(filter: QueryFilter<T>, newData: Partial<T>, options: QueryOptions<T>){
+    async update(filter: QueryFilter<T>, newData: Partial<T>, options?: QueryOptions<T>): Promise<HydratedDocument<T> | null>{
             return this.model.findOneAndUpdate(filter, newData, options);
         }
     
-    async delete(filter: QueryFilter<T>) {
+    async delete(filter: QueryFilter<T>): Promise<DeleteResult> {
             return this.model.deleteOne(filter);
         }
-    async getOne(filter: QueryFilter<T>) {
+    async getOne(filter: QueryFilter<T>): Promise<HydratedDocument<T> | null> {
         return this.model.findOne(filter);
     }
 

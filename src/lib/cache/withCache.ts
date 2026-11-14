@@ -1,7 +1,8 @@
-import { cacheProvider } from "./init.js";
+import { NextFunction, Request, Response } from "express";
+import { cacheProvider } from "./init";
 
 export function withCache(ttl = 3600){
-    return async (req, res, next) =>{
+    return async (req: Request, res: Response, next: NextFunction) =>{
         // request
         // method + url
         // "GET:/products" :"[{},{},{},...]"
@@ -18,14 +19,15 @@ export function withCache(ttl = 3600){
         const originalJson = res.json.bind(res);
         // res.json() >> res() >> originalJson(body);
 
-        res.json = (async (body) => {
+        res.json = ((body) => {
            if (res.statusCode >=200 && res.statusCode < 300 ){
             //1. cache body >> "{message:"",success:true,data:[{},{}]}"
-            await cacheProvider.set(key, JSON.stringify(body), ttl);
+            cacheProvider.set(key, JSON.stringify(body), ttl);
             //2. send response
             res.setHeader('X-Cache', "MISS")
-            return originalJson(body) 
         }
+            return originalJson(body) 
+
     })
         next();
 

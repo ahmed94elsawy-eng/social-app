@@ -1,9 +1,10 @@
-import { model, Schema} from 'mongoose';
+import { HydratedDocument, model, Schema} from 'mongoose';
 import {Gender, Provider} from "../../auth/enum/enum"
 import {IUser} from "../interface/user.interface"
 
 // shape or contract User
 
+export type UserDocument = HydratedDocument<IUser>
 
 const schema = new Schema<IUser>({
       userName: {

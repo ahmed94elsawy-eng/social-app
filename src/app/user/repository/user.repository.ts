@@ -1,13 +1,14 @@
+import { HydratedDocument } from "mongoose";
 import { AbstractRepository } from "../../../lib/db/abstract.repository";
 import {IUser} from "../interface/user.interface";
-import { User } from "../model/user.model";
+import { User, UserDocument } from "../model/user.model";
 
-class UserRepository extends AbstractRepository<IUser>{
+export class UserRepository extends AbstractRepository<IUser>{
     
     constructor() {
         super(User);
     }
-    async findByEmail(email: string) {
+    async findByEmail(email: string): Promise<UserDocument | null> {
         return User.findOne({email: email})
     }
 }

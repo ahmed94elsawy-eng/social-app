@@ -57,7 +57,7 @@ export const env = {
         fromName: parsed.MAILJET_FROM_NAME
     },
     jwt: {
-        secret: parsed.JWT_SECRET
+        accessSecret: parsed.JWT_SECRET
     },
     payments: {},
     aws: {}
