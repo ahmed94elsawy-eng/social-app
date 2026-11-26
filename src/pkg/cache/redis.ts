@@ -1,17 +1,17 @@
-import {Redis} from 'ioredis'
-import { ICacheProvider } from './cache.interface.js';
+// implementation
+import Redis from "ioredis";
+import {ICacheProvider} from "./cache.interface";
 
-interface IRedisConfig {
+interface RedisConfig {
     host: string;
     port: number;
-    password: string
+    password: string;
 }
 
-export class RedisCacheProvider implements ICacheProvider {
-    private client: any;
+export class RedisCacheProvider implements ICacheProvider{
+    public client: Redis;
 
-    // setup config - general
-    constructor(config: IRedisConfig){
+    constructor(config: RedisConfig) {
         this.client = new Redis({
             host: config.host,
             port: config.port,
@@ -19,24 +19,28 @@ export class RedisCacheProvider implements ICacheProvider {
             lazyConnect: true,
             maxLoadingRetryTime: 3
         });
-        
-        this.client.on('error', (err: Error)=> console.log('redis server error:', err.message));
-        this.client.connect().catch((err: Error )=> console.log('fail to connect to redis', err.message)); 
+        // for any error caused in redis cache server
+        this.client.on('error', (err) => {
+            console.log('[RedisCacheProvider] RedisCacheProvider Error: ', err.message);
+        });
+        // for errors in case connect function
+        this.client.connect().catch(err => console.log('fail to connect to redis'));
     }
 
-    async set(key: string, value: string, ttl:number){
-        return await this.client.set(key, value, 'EX', ttl)
+    async set(key: string, value: string, ttl: number) {
+        return this.client.set(key, value, 'EX', ttl);
     }
-    async get(key: string){
-        return await this.client.get(key);
+
+    async get(key: string) {
+        return this.client.get(key);
     }
-   async  del(key: string){
-        return await this.client.del(key);
+
+    async del(key: string) {
+        return this.client.del(key);
     }
-    async ttl(key: string){
+
+
+    async ttl(key: string) {
         return this.client.ttl(key);
     }
 }
-
-
-

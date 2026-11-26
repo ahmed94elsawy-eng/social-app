@@ -1,8 +1,11 @@
-import { JwtPayload } from "jsonwebtoken";
-import { IUser } from "../../app/user/interface/user.interface.js";
+// reopen
+import {IUserPayload} from "./userPayload.interface";
 
 declare module 'express-serve-static-core' {
+
+
     interface Request {
-            user?: Partial<IUser> & JwtPayload
+        user?: IUserPayload;
+        correlationId?: string;
     }
 }

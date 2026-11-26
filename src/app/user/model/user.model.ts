@@ -1,44 +1,29 @@
-import { HydratedDocument, model, Schema} from 'mongoose';
-import {Gender, Provider} from "../../auth/enum/enum"
-import {IUser} from "../interface/user.interface"
-
-// shape or contract User
-
-export type UserDocument = HydratedDocument<IUser>
+import {model, Schema} from 'mongoose';
+import {IUser} from "../interface/user.interface";
+import {Gender, Provider} from "../enum/user.enum";
 
 const schema = new Schema<IUser>({
-      userName: {
-        type: String,
-        required: true,
-        trim: true,
-        minlength: 2, maxlength: 20
-      },
-      email: {
-        type: String,
-        required: true,
-        trim: true,
-        minlength: 3,
-        toLowercase: true
-      },
-      password: {
+    userName: {type: String, required: true, trim: true, minlength: 2, maxlength: 20},
+    email: {type: String, required: true, trim: true, toLowerCase: true, unique: true},
+    password: {
         type: String,
         required: function (this) {
             return this.provider === Provider.LOCAL;
-        },
-        trim: true,
-      },
-      provider: {
-        type: Number,
-        default: Provider.LOCAL,
-        enum: Provider
-      },
-      gender: {
-        type: Number,
-        default: Gender.MALE,
-        enum: Gender
-      }
-})
+        }
+    },
+    provider: {
+        type: Number, default: Provider.LOCAL, enum: Provider
+    },
+    phoneNumber: {type: String},
+    gender: {type: Number, enum: Gender, default: Gender.MALE},
+    isVerified: {type: Boolean, default: false},
+    isDeleted: {type: Boolean, default: false},
+    profilePicturePath: {type: String},
 
-export const User = model('User', schema)
+}, {
+    timestamps: true,
+    toJSON: {virtuals: true},
+    toObject: {virtuals: true},
+});
 
-
+export const User = model<IUser>('User', schema)

@@ -1,4 +1,5 @@
-import { JwtPayload } from "jsonwebtoken";
-import { IUser } from "../../app/user/interface/user.interface";
+import {JwtPayload} from "jsonwebtoken";
+import {IUser} from "../../app/user/interface/user.interface";
 
-export type TUserPayload = JwtPayload & Partial<IUser>
+export interface IUserPayload extends JwtPayload, Partial<IUser> {
+}

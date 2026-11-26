@@ -1,34 +1,18 @@
-import {Schema, Types, model} from "mongoose";
+import { model, Schema } from "mongoose";
+import { IPost } from "../interface/post.interface";
 
-export interface IPost {
-    content: string;
-    userId: Types.ObjectId;
-    commentsCount: number;
-    reactionsCount: number;
-}
-
-const schema = new Schema<IPost>({
-    content: {
-        type: String,
-        required: true,
-        trim: true,
-        minlength: 1,
-        maxLength: 200
+const postSchema = new Schema<IPost>(
+    {
+        title: { type: String, trim: true, maxlength: 150 },
+        content: { type: String, required: true, trim: true },
+        author: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
+        isDeleted: { type: Boolean, default: false },
     },
-    userId: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    commentsCount: {
-        type: Number,
-        default: 0
-    },
-    reactionsCount: {
-        type: Number,
-        default: 0
+    {
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
     }
-});
+);
 
-
-export const Post = model('Post', schema)
+export const Post = model<IPost>("Post", postSchema);

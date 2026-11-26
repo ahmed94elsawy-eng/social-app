@@ -1,35 +1,37 @@
-import { NextFunction, Request, Response } from "express";
-import { cacheProvider } from "./init";
+// 1. check if request cached
+// get from Cache layer search 'GET:/products' : '[{},{},{},{}]'
+import {cacheProvider} from "./init";
+import {NextFunction, Request, Response} from "express";
 
-export function withCache(ttl = 3600){
-    return async (req: Request, res: Response, next: NextFunction) =>{
-        // request
-        // method + url
-        // "GET:/products" :"[{},{},{},...]"
+export function withCache(ttl = 3600) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        // req.url >> /rgister
+        // req.orignalUrl /api/v1/auth/rgister
         let key = `${req.method}:${req.originalUrl}`;
-        const cached = await cacheProvider.get(key);
-        if (cached){
-            res.setHeader('X-Cache', "HIT")
+        const cached = await cacheProvider.get(key);// nil | data
+        if (cached) {
+            res.setHeader('X-Cache', 'HIT');
             return res.json(JSON.parse(cached));
         }
-        // interceptor
-        // res.json() >> send client response
-        // res.json(body) >> cache + send client response
-        // get deep copy from implementation res.json
-        const originalJson = res.json.bind(res);
-        // res.json() >> res() >> originalJson(body);
-
+        // res.json() >> send a client response
+        // intercept - modify
+        // res.json({message,success,data}) >>  set data to cache + send a client response
+        const originalJson = res.json.bind(res); // res()
         res.json = ((body) => {
-           if (res.statusCode >=200 && res.statusCode < 300 ){
-            //1. cache body >> "{message:"",success:true,data:[{},{}]}"
+            res.setHeader('X-Cache', 'MISS');
             cacheProvider.set(key, JSON.stringify(body), ttl);
-            //2. send response
-            res.setHeader('X-Cache', "MISS")
-        }
-            return originalJson(body) 
-
-    })
+            return originalJson(body);
+        });
         next();
-
     }
 }
+
+// originalJson == res == res.json() >> old
+// save old res.json() before modify
+// res.json()
+//  await cacheProvider.set(key, body);
+//  return res.json(body);
+
+// round
+// await cacheProvider.set(key, body);
+// return res.json(body);
